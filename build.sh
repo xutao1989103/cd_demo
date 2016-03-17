@@ -1,12 +1,9 @@
 #!/bin/bash
 
-if [ -z "${1}" ]; then
-   version="latest"
-else
-   version="${1}"
+docker build -t ci/maven:3.3.9 ${WORKSPACE}/maven
+if docker ps -a | grep -i maven; then
+	docker rm -f maven
 fi
-
-
-cd nodejs_app
-docker build -t localhost:5000/containersol/nodejs_app:${version} .
-cd ..
+docker create --name maven ci/maven:3.3.9
+docker cp maven:/hello/target/hello.war ${WORKSPACE}/hello
+docker build -t localhost:5000/ci/hello:1.0.0 ${WORKSPACE}/hello
